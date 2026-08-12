@@ -97,6 +97,14 @@ export interface StressInput {
   minDscr: number;
   monthlyOwnerWithdrawals: number;
   monthlyMaintenanceCapex: number;
+  /**
+   * The CFADS the repayment-capacity engine actually reported. Scenarios move
+   * away from this baseline rather than re-deriving cash from EBITDA, so the
+   * base case agrees with the headline metric instead of quietly contradicting
+   * it — which is the difference between a stress table an underwriter trusts
+   * and one they have to reconcile by hand.
+   */
+  baselineCfadsMonthly: number;
 }
 
 export function runScenario(input: StressInput, scenario: ScenarioDefinition): ScenarioResult {
@@ -123,11 +131,10 @@ export function runScenario(input: StressInput, scenario: ScenarioDefinition): S
     existingMonthlyInterest: input.forecast.existingMonthlyInterest + interestUplift,
   });
 
-  const cfadsMonthly =
-    ebitda / m -
-    input.monthlyMaintenanceCapex -
-    input.monthlyOwnerWithdrawals -
-    extraWorkingCapital / 12;
+  // Shift the observed baseline by the scenario's EBITDA movement and the
+  // extra working capital the slower cycle ties up.
+  const ebitdaDeltaMonthly = (ebitda - input.income.ebitda) / m;
+  const cfadsMonthly = input.baselineCfadsMonthly + ebitdaDeltaMonthly - extraWorkingCapital / 12;
 
   const debtService = input.postTransactionMonthlyDebtService + interestUplift;
   const dscr = safeDiv(cfadsMonthly, debtService);

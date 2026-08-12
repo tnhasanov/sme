@@ -13,6 +13,7 @@ import {
 import { computeRepaymentCapacity } from '@/domain/calculations/repayment-capacity';
 import { computeCollateralCoverage } from '@/domain/calculations/collateral';
 import { analyseRefinancing } from '@/domain/calculations/bureau';
+import { DEFAULT_SCENARIOS, runStressTest } from '@/domain/calculations/stress';
 import { COLLATERAL_HAIRCUTS_V1 } from '@/config/policy';
 import type { BalanceSheet, CashFlowStatement, IncomeStatement } from '@/types/financials';
 import type { CreditFacility } from '@/types/application';
@@ -486,5 +487,53 @@ describe('refinancing engine', () => {
     ]);
     expect(r.instalmentRepaymentShare!).toBeGreaterThan(0.5);
     expect(r.flags.some((f) => f.key === 'DEBT_EVERGREENING')).toBe(false);
+  });
+});
+
+describe('stress testing', () => {
+  const input = {
+    income: incomeTotals(income()),
+    monthsCovered: 12,
+    totalBankDebt: 700,
+    forecast: {
+      startMonth: '2026-01',
+      months: 12,
+      openingCash: 100,
+      monthlySalesReceipts: 160,
+      salesGrowthMonthlyPct: 0,
+      seasonalityIndex: new Array(12).fill(1),
+      cogsRatio: 0.7,
+      monthlyPayroll: 12,
+      monthlyOpex: 8,
+      monthlyTax: 2,
+      monthlyOwnerWithdrawals: 3,
+      existingMonthlyPrincipal: 5,
+      existingMonthlyInterest: 5,
+      existingRemainingMonths: 36,
+    },
+    postTransactionMonthlyDebtService: 15,
+    minDscr: 1.5,
+    monthlyOwnerWithdrawals: 3,
+    monthlyMaintenanceCapex: 4,
+    baselineCfadsMonthly: 18,
+  };
+
+  it('reports the observed CFADS unchanged in the base case', () => {
+    const [base] = runStressTest(input, [DEFAULT_SCENARIOS[0]]);
+    // The base scenario must agree with the headline metric, not re-derive it.
+    expect(base.cfadsMonthly).toBeCloseTo(18, 6);
+    expect(base.dscr).toBeCloseTo(18 / 15, 6);
+  });
+
+  it('degrades monotonically from base through downside to severe', () => {
+    const [base, downside, severe] = runStressTest(input);
+    expect(downside.cfadsMonthly).toBeLessThan(base.cfadsMonthly);
+    expect(severe.cfadsMonthly).toBeLessThan(downside.cfadsMonthly);
+    expect(severe.breaches.length).toBeGreaterThanOrEqual(downside.breaches.length);
+  });
+
+  it('names the specific norm each scenario breaches', () => {
+    const [, , severe] = runStressTest(input);
+    expect(severe.breaches.join(' ')).toContain('DSCR');
   });
 });

@@ -405,7 +405,8 @@ export function assessApplication(
           postTransactionMonthlyDebtService,
           minDscr: 1.5,
           monthlyOwnerWithdrawals,
-          monthlyMaintenanceCapex: monthlyMaintenanceCapex,
+          monthlyMaintenanceCapex,
+          baselineCfadsMonthly: repayment?.cfads ?? 0,
         })
       : [];
 
