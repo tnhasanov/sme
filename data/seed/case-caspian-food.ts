@@ -47,7 +47,7 @@ export function buildCaspianFoodCase(): { customer: Customer; application: Credi
     businessModel:
       'İstehsalçılardan ərzaq məhsullarının alınması və regional pərakəndə şəbəkələrə, market zəncirlərinə möhlətli satışı.',
     products: ['Quru ərzaq', 'Konservləşdirilmiş məhsullar', 'İçkilər', 'Şirniyyat'],
-    geography: 'Bakı, Abşeron, Şirvan, Gəncə',
+    geography: 'Bakı, Abşeron, Sumqayıt, Gəncə',
     locations: 3,
     employees: 64,
     keyCustomers: [

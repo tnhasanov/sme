@@ -114,7 +114,7 @@ Complete register of the material supplied for the ATB SME underwriting platform
 | `492ddfb5-….pdf` — `Gəlir vergisi bəyannaməsi`, tax year **2024**, `kassa metodu`, size criterion **Mikro**, amended by taxpayer | PDF, CID-encoded | Declared revenue, expenses, taxable income and the annexed balance sheet — the highest-ranking evidence tier in the methodology's confirmation hierarchy | Recovered only by extracting the embedded TrueType subsets and shape-matching glyphs (the PDFs use `Identity-H` with no `/ToUnicode` CMap and no `cmap` table). Full line structure: 1200/1223/1225 income, 1226.x expenses, 1241/1246/1250 tax, Annex 1 balance sheet | `CURRENT`; **decoding defect**: digit `6` sometimes renders as `o`, word spaces are lost | `domain/calculations/cross-checks.ts`; `config/scorecards.ts → DATA_QUALITY_V1` factor `TAX` |
 | `4fa0daaf-….pdf` — same form, tax year **2025**, `hesablama metodu`, size criterion **Kiçik** | PDF, CID-encoded | as above | as above | `CURRENT`, same decoding defect | as above |
 | `Qeydiyyat dəftəri/` — 65 images | JPG | The hand-written sales/stock ledger from which inventory and sales are reconstructed | **NOT OCR'd.** What the ledger contains is known only indirectly, from the workbook commentary: goods are counted at retail price and divided by the mark-up factor to reach cost | `NEEDS_CONFIRMATION` | none (evidence-type `REGISTRY_LEDGER` in `DATA_QUALITY_V1`) |
-| `Planet Şirvan - aylıq satışlar/` — monthly sales photos | JPG | Monthly sales records supporting the P&L | **NOT OCR'd** | `NEEDS_CONFIRMATION` | none |
+| `[BUSINESS] — aylıq satışlar/` — monthly sales photos | JPG | Monthly sales records supporting the P&L | **NOT OCR'd** | `NEEDS_CONFIRMATION` | none |
 | `nağd pul/` — 5 images | JPG | Cash-on-hand count | **NOT OCR'd** | `NEEDS_CONFIRMATION` | none |
 
 ---
@@ -156,7 +156,7 @@ Complete register of the material supplied for the ATB SME underwriting platform
 | `AKB-[BORROWER].pdf`, `AKB-[BORROWER] hy.pdf` | Image-only PDFs (306 and 40 bytes of text) — the two bureau extracts that would have shown the applicant's and the related person's actual bureau data |
 | `0679-ATB-[BORROWER]-ilkin rey.pdf` (valuation) | Image-only PDF (20 bytes) — the collateral valuation figures are therefore known only as they were re-keyed into the presentation workbook |
 | `Razılıq_ərizəsi.DOCX` | Only the table title survived extraction; body missing |
-| `Qeydiyyat dəftəri`, `Qeydiyyat defteri - 2`, `Planet Şirvan - aylıq satışlar`, `nağd pul`, `1.Biznes şəkilləri`, `Ev şəkilləri`, `Digər sənədlər`, `Ş.V`, `Təminat/Girov` | Photographic archives — **no OCR was run**. Together these are the entire primary-evidence layer behind the reconstructed statements; the platform models them as evidence *types* with a verification tier, not as parsed data |
+| `Qeydiyyat dəftəri`, `Qeydiyyat defteri - 2`, `[BUSINESS] — aylıq satışlar`, `nağd pul`, `1.Biznes şəkilləri`, `Ev şəkilləri`, `Digər sənədlər`, `Ş.V`, `Təminat/Girov` | Photographic archives — **no OCR was run**. Together these are the entire primary-evidence layer behind the reconstructed statements; the platform models them as evidence *types* with a verification tier, not as parsed data |
 | Two extraction passes produced duplicate `.txt` files with hash suffixes | Filenames are truncated at ~160 characters, which caused name collisions in the first pass; the second pass recovered two files that had been lost (the instalment/barter annex XLSX and the transport methodology DOCX) |
 
 ---

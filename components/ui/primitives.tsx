@@ -140,7 +140,9 @@ export function Stat({
           : 'text-slate-100';
   return (
     <div className="min-w-0" title={hint}>
-      <div className="truncate text-[10px] uppercase tracking-wide text-slate-500">{label}</div>
+      {/* Wraps rather than truncates — a headline metric whose label is cut
+          off is a metric the reader has to guess at. */}
+      <div className="text-[10px] uppercase leading-tight tracking-wide text-slate-500">{label}</div>
       <div className={cn('mt-0.5 truncate text-[15px] font-semibold tabular-nums', toneClass)}>{value}</div>
       {sub && <div className="mt-0.5 truncate text-[10px] text-slate-500">{sub}</div>}
     </div>

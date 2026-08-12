@@ -142,7 +142,7 @@ rejections:
 | Case | Shape |
 |---|---|
 | **Xəzər Ərzaq Distribusiya** | Sales +32% while EBITDA grows only +14%; receivables and inventory balloon; operating cash weakens. Profitable on paper, deteriorating in cash. |
-| **Şirvan Ticarət Evi** | Serial refinancing — each closure followed within days by a larger loan; only 34% of past principal genuinely amortised. |
+| **Zaqatala Ticarət Evi** | Serial refinancing — each closure followed within days by a larger loan; only 34% of past principal genuinely amortised. |
 | **Gəncə Metal Emalı** | Strong borrower: verified data, DSCR 1.63x, collateral coverage 105%, data quality A, no stop factors. |
 | **Abşeron İnşaat Servis** | Construction: lumpy contract cash flow, receivable days 158, heavy customer concentration. |
 | **Mil-Muğan Aqro** | Agriculture: poor monthly DSCR but a positive seasonal forecast, demonstrating the sector waiver the methodology grants. |

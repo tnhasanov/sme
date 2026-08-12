@@ -121,7 +121,7 @@ The separation shows up in the assessment snapshot as four independent result gr
 | `rules/data-quality.ts` | `computeDataQuality` — weighted evidence scoring to an A–E grade |
 | `rules/findings.ts` | `generateFindings`, `generateCommentary` — deterministic narrative |
 | `workflow/routing-engine.ts` | `routeApplication` — bucket selection, collateral matching, escalation logic, stop-factor override, reason list |
-| `opinion/opinion-builder.ts` | `buildOpinionDraft` — a structured first draft of the credit memo (executive summary, borrower, business, request, credit history, group exposure, financial analysis, cash flow, purpose, collateral, rating, policy, recommendation) built only from computed data |
+| `opinion/opinion-builder.ts` | `buildOpinionDraft` → `OpinionDraft { sections, positives, negatives, recommendation }`. Twelve sections (executive summary, borrower and ownership, business, loan request, credit history, group exposure, financial analysis, cash flow and repayment capacity, loan purpose, collateral, risk rating, policy compliance) plus the `Müsbət / Mənfi tərəflər` lists and a decision recommendation — built only from computed data |
 
 ### `services/`, `repositories/`, `data/`, `components/`, `app/`
 

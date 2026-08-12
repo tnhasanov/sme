@@ -18,7 +18,7 @@ import {
 /**
  * Demo cases 2-5. All identifiers synthetic.
  *
- *  2. Şirvan Ticarət Evi (§79) — serial refinancing / loan cycling.
+ *  2. Zaqatala Ticarət Evi (§79) — serial refinancing / loan cycling.
  *  3. Gəncə Metal Emalı (§80) — strong borrower, verified data.
  *  4. Abşeron İnşaat Servis    — construction, contract-driven, lumpy cash.
  *  5. Mil-Muğan Aqro          — agriculture, seasonal, sector-plugin data.
@@ -34,8 +34,8 @@ export function buildRefinancingCase(): { customer: Customer; application: Credi
 
   const customer: Customer = {
     id: customerId,
-    legalName: 'Fərdi sahibkar "Şirvan Ticarət Evi" (demo)',
-    displayName: 'Şirvan Ticarət Evi',
+    legalName: 'Fərdi sahibkar "Zaqatala Ticarət Evi" (demo)',
+    displayName: 'Zaqatala Ticarət Evi',
     customerType: 'INDIVIDUAL_ENTREPRENEUR',
     legalForm: 'FST',
     taxId: 'DEMO-1000000002',
@@ -43,13 +43,13 @@ export function buildRefinancingCase(): { customer: Customer; application: Credi
     activityStartDate: '2015-04-01',
     officialActivityYears: 8,
     unofficialActivityYears: 11,
-    address: 'Şirvan şəhəri (demo ünvan)',
-    region: 'Şirvan',
+    address: 'Zaqatala şəhəri (demo ünvan)',
+    region: 'Şəki-Zaqatala',
     sector: 'Pərakəndə ticarət',
     subSector: 'Qarışıq mal ticarəti (market)',
     businessModel: 'Şəhər mərkəzində iki ticarət obyekti; nağd və nisyə pərakəndə satış.',
     products: ['Ərzaq', 'Məişət malları', 'Geyim'],
-    geography: 'Şirvan, Hacıqabul',
+    geography: 'Zaqatala, Balakən',
     locations: 2,
     employees: 18,
     keyCustomers: [{ name: 'Pərakəndə alıcılar', sharePct: 100 }],
@@ -215,7 +215,7 @@ export function buildRefinancingCase(): { customer: Customer; application: Credi
     }),
   ];
 
-  const report = bureauReport(applicationId, 'Şirvan Ticarət Evi', '2026-07-15', 372, facilities, {
+  const report = bureauReport(applicationId, 'Zaqatala Ticarət Evi', '2026-07-15', 372, facilities, {
     individualBureauRating: 'SATISFACTORY',
     inquiries: [
       { id: id('inq'), date: '2026-07-02', institution: 'Bank I (demo)', purpose: 'Biznes krediti', resultedInLoan: false },
@@ -229,7 +229,7 @@ export function buildRefinancingCase(): { customer: Customer; application: Credi
     reference: 'KOB-2026-07-0157',
     customerId,
     applicationDate: '2026-07-16',
-    branch: 'Şirvan filialı',
+    branch: 'Zaqatala filialı',
     rm: 'RM-022',
     underwriter: 'UW-001',
     channel: 'BRANCH',
@@ -254,7 +254,7 @@ export function buildRefinancingCase(): { customer: Customer; application: Credi
     primaryRepaymentSource: 'Pərakəndə satışdan gündəlik nağd daxilolmalar',
     secondaryRepaymentSource: 'Ticarət obyektinin girovu',
     groupMembers: [
-      groupMember('Şirvan Ticarət Evi (demo)', 'SELF', 274_000, 468_000, { requestedExposure: 750_000 }),
+      groupMember('Zaqatala Ticarət Evi (demo)', 'SELF', 274_000, 468_000, { requestedExposure: 750_000 }),
       groupMember('Sahibkarın həyat yoldaşı (demo)', 'RELATED_BORROWER', 0, 48_000),
     ],
     bureauReports: [report],
