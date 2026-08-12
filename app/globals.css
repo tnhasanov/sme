@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  body {
+    font-feature-settings: 'tnum' 1, 'cv02' 1;
+  }
+
+  /* Dense scrollbars — the workstation has many independently scrolling panes. */
+  ::-webkit-scrollbar {
+    height: 10px;
+    width: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: rgb(2 6 23);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgb(30 41 59);
+    border-radius: 6px;
+    border: 2px solid rgb(2 6 23);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgb(51 65 85);
+  }
+}
+
+@layer utilities {
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}
