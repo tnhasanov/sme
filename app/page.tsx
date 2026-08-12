@@ -102,6 +102,7 @@ export default async function DashboardPage() {
           >
             {live.map(({ application: app, customer, assessment: a }) => {
               const critical = a.findings.filter((f) => f.severity === 'CRITICAL').length;
+              const high = a.findings.filter((f) => f.severity === 'HIGH').length;
               return (
                 <tr key={app.id} className="transition-colors hover:bg-slate-900/50">
                   <Td>
@@ -159,10 +160,14 @@ export default async function DashboardPage() {
                     )}
                   </Td>
                   <Td align="center">
+                    {/* "Clean" must mean clean — a case with high-severity
+                        findings listed alongside it cannot be labelled so. */}
                     {a.activeStopFactors.length > 0 ? (
                       <Badge tone="rose">{a.activeStopFactors.length} stop</Badge>
                     ) : critical > 0 ? (
                       <Badge tone="orange">{critical} kritik</Badge>
+                    ) : high > 0 ? (
+                      <Badge tone="amber">{high} yüksək</Badge>
                     ) : (
                       <Badge tone="emerald">təmiz</Badge>
                     )}
