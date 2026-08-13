@@ -45,7 +45,7 @@ capacity.
 npm install
 npm run dev          # http://localhost:3000
 npm run build        # production build
-npm test             # 82 unit tests over the calculation and decision engines
+npm test             # 85 unit tests over the calculation and decision engines
 npm run typecheck    # tsc --noEmit
 npm run smoke        # run every engine over all seeded cases and print the results
 ```
