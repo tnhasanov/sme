@@ -488,3 +488,17 @@ Declared revenue is roughly **19 %** of ledger-based sales, while declared inven
 **How the platform behaves.** Sector rules are honoured where they exist as thresholds: `waivedForSectors: ['Xidmət']` on the debt-to-equity stop and `['Kənd təsərrüfatı']` on the repayment-capacity stop (`config/policy.ts`), and sector turnover-day rules per Q11. The instalment aging buckets and the agro/transport annex models are **not yet implemented** as modules; the photographic evidence is modelled as evidence *types* with a verification tier in `config/scorecards.ts → DATA_QUALITY_V1` (`REGISTRY_LEDGER`, `INVENTORY_LIST`, `COLLATERAL`, `VALUATION`, `CONTRACT`, `INVOICE`), not as parsed data.
 
 **To resolve.** (a) Request the two legacy files in a modern format; (b) request text-layer PDFs of the ACB extracts and the valuation; (c) decide whether ledger OCR is in scope — it is the only way to make the Q21 reconciliation evidential rather than assertive; (d) confirm the instalment-portfolio decision thresholds and the transport annex's 36-month divisor; (e) set a refresh cadence and an owner for the agro norms workbook.
+
+---
+
+## 28. Label-vocabulary coverage across branch workbook templates
+
+**The question.** Which line labels do the branches actually use, and is the platform's vocabulary broad enough to read their workbooks without an analyst re-typing every figure?
+
+**Why it matters.** `/intake` reads uploaded workbooks by matching row labels rather than cell addresses, precisely because branch templates differ and rows get inserted. That design degrades gracefully — an unrecognised row is reported as unmapped rather than mis-assigned — but every unmapped row is a figure an analyst has to key in, and a heavy unmapped rate would make the feature slower than typing the case in by hand.
+
+**What the sources say.** The reference workbooks supplied for this build are one template family. Two things already observed in that single family show the shape of the risk: `Xammal` and `Hazır məhsul` arrive as separate rows that both mean inventory (the parser sums them), and `Gəlir vergisi` shares the fragment `gelir` with the sales vocabulary — a naive priority ordering silently added the tax line to turnover until matching was changed to prefer the more specific pattern. Neither problem is visible from one workbook; both were found by running the parser over the material.
+
+**How the platform behaves.** `domain/intake/labels.ts` holds the vocabulary as data — `BALANCE_LABELS`, `INCOME_LABELS`, `CASH_FLOW_LABELS`, each field with its known variants, exclusions and a tie-break priority — so extending it is an edit to a table, not to the parser. `parseWorkbook` returns every unmatched numeric row in `unmapped`, and the intake screen renders them with their sheet, row number and values, so what the machine failed to understand is visible rather than lost. `lib/sample-workbook.ts` ships one template that is guaranteed to parse, and `tests/intake.test.ts` fails if the vocabulary ever drifts away from it.
+
+**To resolve.** Collect the workbook variants actually in use across branches and run each through the parser, treating the unmapped-row list as the work item: every recurring label either joins the vocabulary or is confirmed as genuinely out of scope. Until that sweep is done, the unmapped rate per branch template is unknown, and the correction grid — not the parser — is what guarantees the figures are right.

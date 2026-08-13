@@ -77,7 +77,9 @@ export function buildOpinionDraft(
     titleEn: 'Borrower and Ownership',
     paragraphs: [
       `${customer.legalName} ${customer.registrationDate} tarixindən qeydiyyatdadır; rəsmi fəaliyyət müddəti ${customer.officialActivityYears} il, qeyri-rəsmi fəaliyyət müddəti ${customer.unofficialActivityYears} ildir.`,
-      `Mülkiyyət strukturu: ${customer.shareholders.map((s) => `${s.name} — ${s.ownershipPct}%${s.isUbo ? ' (UBO)' : ''}`).join('; ')}.`,
+      customer.shareholders.length > 0
+        ? `Mülkiyyət strukturu: ${customer.shareholders.map((s) => `${s.name} — ${s.ownershipPct}%${s.isUbo ? ' (UBO)' : ''}`).join('; ')}.`
+        : 'Mülkiyyət strukturu qeydə alınmayıb — təsisçi məlumatları və UBO təsdiqi tələb olunur.',
       customer.management.some((m) => m.isKeyPerson)
         ? `İdarəetmə açar şəxsdən asılıdır: ${customer.management.filter((m) => m.isKeyPerson).map((m) => `${m.role} (${m.yearsInSector} il sektor təcrübəsi)`).join('; ')}.`
         : 'İdarəetmə komandası paylanmışdır, açar şəxs riski qeyd edilməyib.',
@@ -91,7 +93,9 @@ export function buildOpinionDraft(
     paragraphs: [
       customer.businessModel,
       `Fəaliyyət ${customer.locations} obyektdə aparılır, işçi sayı ${customer.employees} nəfərdir. Coğrafiya: ${customer.geography}.`,
-      `Müştəri konsentrasiyası: ilk iki müştəri satışın ${pct(customer.keyCustomers.slice(0, 2).reduce((s, k) => s + k.sharePct, 0) / 100)} hissəsini təşkil edir. Təchizatçı konsentrasiyası: ${pct((customer.keySuppliers[0]?.sharePct ?? 0) / 100)}.`,
+      customer.keyCustomers.length > 0 || customer.keySuppliers.length > 0
+        ? `Müştəri konsentrasiyası: ilk iki müştəri satışın ${pct(customer.keyCustomers.slice(0, 2).reduce((s, k) => s + k.sharePct, 0) / 100)} hissəsini təşkil edir. Təchizatçı konsentrasiyası: ${pct((customer.keySuppliers[0]?.sharePct ?? 0) / 100)}.`
+        : 'Müştəri və təchizatçı konsentrasiyası qeydə alınmayıb — konsentrasiya riski qiymətləndirilə bilmir.',
       `Mövsümilik: ${customer.seasonality}`,
     ],
   });

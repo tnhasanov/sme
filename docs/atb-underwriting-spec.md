@@ -122,6 +122,11 @@ The separation shows up in the assessment snapshot as four independent result gr
 | `rules/findings.ts` | `generateFindings`, `generateCommentary` — deterministic narrative |
 | `workflow/routing-engine.ts` | `routeApplication` — bucket selection, collateral matching, escalation logic, stop-factor override, reason list |
 | `opinion/opinion-builder.ts` | `buildOpinionDraft` → `OpinionDraft { sections, positives, negatives, recommendation }`. Twelve sections (executive summary, borrower and ownership, business, loan request, credit history, group exposure, financial analysis, cash flow and repayment capacity, loan purpose, collateral, risk rating, policy compliance) plus the `Müsbət / Mənfi tərəflər` lists and a decision recommendation — built only from computed data |
+| `intake/labels.ts` | Azerbaijani line-label vocabulary: `normaliseLabel`, `BALANCE_LABELS`/`INCOME_LABELS`/`CASH_FLOW_LABELS`, `SHEET_PATTERNS`, `detectSheetKind`, `matchField`. Rows are matched by label, never by cell address — specificity wins, priority only breaks ties |
+| `intake/workbook-parser.ts` | `toNumber`, `detectPeriods`, `extractStatement`, `collapseByField`, `parseWorkbook`, `evidenceForConfidence` — pure functions over a cell grid. Every extracted figure carries its sheet, row label, column and a confidence; everything unrecognised comes back as `unmapped` |
+| `intake/build-application.ts` | `buildApplicationFromIntake` — turns a parse result plus the analyst's manual inputs into a full `CreditApplication` + `Customer`, so uploaded cases run through the same assessment path as seeded ones |
+| `intake/case-defaults.ts` | `CaseFormValue`, `SECTORS`, `DEFAULT_CASE_FORM` — the case facts a workbook cannot carry |
+| `review/types.ts` | `FINDING_DISPOSITIONS`, `DISPOSITION_LABEL_AZ`, `UnderwriterReview`, `reviewProgress` — the human-in-the-loop state and the sign-off gate |
 
 ### `services/`, `repositories/`, `data/`, `components/`, `app/`
 
@@ -134,9 +139,14 @@ The separation shows up in the assessment snapshot as four independent result gr
 | `data/seed/*` | Synthetic fixtures: `builders.ts` (constructors), `case-caspian-food.ts` (full-depth reference case), `other-cases.ts` (refinancing, strong borrower, construction, agriculture), `rejected-cases.ts` (retained rejections), `index.ts` (`seedData`, `ensureSeeded`) |
 | `components/layout/*` | `app-shell.tsx` (global chrome), `application-tabs.tsx` (`APPLICATION_TABS`, the canonical tab list) |
 | `components/application/*` | `sticky-risk-panel.tsx` (always-visible rating / capacity / stop-factor summary), `shared.tsx` (grade chips and shared bits) |
+| `components/intake/*` | `upload-zone.tsx` (drag-and-drop classifier), `extraction-preview.tsx` (per-field confidence and correction grid), `case-form.tsx` (manual case facts), `intake-analysis.tsx` (result view) |
+| `components/review/underwriter-review.tsx` | `UnderwriterReviewWorkspace` — machine draft on the left of every finding, human judgement on the right |
+| `lib/review-store.ts` | Client-side persistence for reviews and intake drafts, shaped like the future `ReviewRepository` |
+| `lib/sample-workbook.ts` | `SAMPLE_SHEETS` + `downloadSampleWorkbook` — the articulated template the bank hands to branches |
 | `components/ui/primitives.tsx` | `Panel`, `DataTable`, `Th`/`Td`, `Stat`, `Badge`, `StatusBadge`, `SeverityBadge`, `ProgressBar`, `KeyValue`, `EmptyState`, `SectionTitle` |
 | `app/*` | Routes — see §6 |
 | `lib/format.ts`, `lib/utils.ts` | AZN/percent/date formatting, AZ label maps, `cn` |
+| `tests/intake.test.ts` | Parser, label matching, intake→assessment round trip, the sign-off gate, and an assertion that the shipped template reconciles on every cross-check |
 | `tests/calculations.test.ts`, `scripts/smoke.ts` | Vitest unit coverage of the calculation engines; a smoke script that asserts every seeded case assesses end to end |
 
 ---
@@ -323,3 +333,73 @@ Author `prisma/schema.prisma`, run `prisma migrate dev` for the initial migratio
 - **Immutability** — enforce append-only on `AuditEntry` and no-delete on applications at the database level (revoked `DELETE` grant or a trigger), not only in application code.
 - **Attachments** — `CreditDocument` currently holds metadata; production needs object storage plus a checksum column.
 - **Access control** — role-based filtering (branch RM sees their branch; committee members see cases routed to them) belongs in the repository layer, so every read path inherits it.
+
+---
+
+## 10. Analyst intake and human-in-the-loop review
+
+The route `/intake` closes the loop between the SME analyst, who holds the
+customer's files, and the underwriter, who has to form an opinion about them.
+It is a four-step wizard, and every step is a client component: the parser, the
+application builder and every engine are pure functions, so the whole chain runs
+in the browser. That is not an optimisation — it is what the anonymisation rule
+in §8 requires. **The customer's financial file is never uploaded anywhere and
+never reaches an external service, AI or otherwise.**
+
+### 10.1 The four steps
+
+| Step | Route state | What happens |
+|---|---|---|
+| 1. `Fayl yükləmə` | `UPLOAD` | `UploadZone` classifies each file. `.xlsx/.xlsm/.xls/.csv` are workbooks and get parsed; everything else becomes a `CreditDocument` in the register, categorised from its filename (a file named `Vergi bəyannaməsi.pdf` lands as `TAX`), which is what moves the A–E data-quality grade. |
+| 2. `Oxunanı yoxlama` | `VERIFY` | SheetJS reads each sheet to a cell grid; `parseWorkbook` maps it. The analyst picks which period columns to import and which is primary, sees a confidence dot per figure, and can overwrite any cell. |
+| 3. `Sifariş məlumatları` | `CASE` | The facts a workbook cannot carry: identity and sector, the requested structure, the AKB summary, the collateral. |
+| 4. `Təhlil və rəy` | `ANALYSIS` | `buildApplicationFromIntake` + `assessApplication` + `buildOpinionDraft` run, and the underwriter review workspace opens on the result. |
+
+### 10.2 How the parser refuses to guess
+
+Branch workbooks differ, so matching on fixed cell addresses breaks the moment
+somebody inserts a row. Every domain field instead carries the label variants it
+is known by, and rows are scored against them after Azerbaijani-specific
+normalisation (`ə→e`, `ı→i`, `ş→s`, `ç→c`, `ğ→g`, `ü→u`, `ö→o`, punctuation
+stripped). Three rules keep a mis-mapping from becoming a wrong credit decision:
+
+- **Specificity decides, priority only breaks ties.** `Gəlir vergisi` contains
+  the generic `gelir` fragment that also names sales; if priority dominated, the
+  tax line would be added to turnover. The longer matched pattern wins.
+- **Unrecognised rows are reported, not dropped.** They appear in the
+  `Uyğunlaşdırılmayan sətirlər` table with their sheet, row number and values, so
+  the analyst can see what the machine did not understand.
+- **The parser never claims `VERIFIED`.** `evidenceForConfidence` tops out at
+  `PARTIALLY_VERIFIED`; a figure the analyst corrects by hand becomes
+  `ANALYST_ESTIMATE` with the reason recorded on its `TracedValue`.
+
+Several rows mapping to the same field in one period are summed — `Xammal` plus
+`Hazır məhsul` is the inventory total — and the contributing row labels are kept
+so the correction grid can show where a figure came from.
+
+### 10.3 The sign-off gate
+
+`reviewProgress` (in `domain/review/types.ts`) blocks sign-off until **every**
+`CRITICAL` and `HIGH` finding has been dispositioned by a person
+(`ACKNOWLEDGED` / `MITIGATED` / `RESOLVED` / `WAIVED` / `DISPUTED`) and the
+reviewer has named themselves. The point of the workflow is that nobody can wave
+a case through by not reading it.
+
+The generated recommendation is never overwritten. It stays on screen next to
+the underwriter's own decision, and a decision that differs from it demands a
+written rationale. Per-finding notes, per-section notes, an overall note and the
+recommendation override are all captured; they persist through
+`lib/review-store.ts`, whose shape matches the `ReviewRepository` a PostgreSQL
+build would add, so moving reviews into the database touches that module alone.
+
+### 10.4 The template
+
+`lib/sample-workbook.ts` generates the workbook the bank hands to branches, and
+`Nümunə şablonu endir` on the intake page downloads it. Its figures are
+synthetic and **fully articulated** — the balance sheet is derived from the P&L
+and the cash flow, so all seven reconciliations pass. They are not flattering:
+2025 sales grow 32% while receivable days stretch from 39 to 43, so the case
+produced from the template lands on `APPROVE_WITH_CONDITIONS` with a reduced
+amount rather than a clean approval, and the data-quality grade sits at E until
+supporting documents are attached. `tests/intake.test.ts` asserts all of this,
+so a figure edited in the template cannot silently break the demo.

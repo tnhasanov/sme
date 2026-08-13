@@ -11,11 +11,13 @@ import {
   PieChart,
   Settings2,
   ShieldCheck,
+  UploadCloud,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const NAV = [
   { href: '/', label: 'İdarə paneli', en: 'Dashboard', icon: LayoutDashboard },
+  { href: '/intake', label: 'Fayl yüklə və təhlil', en: 'Upload & Analyse', icon: UploadCloud },
   { href: '/applications', label: 'Sifarişlər', en: 'Applications', icon: FileStack },
   { href: '/customers', label: 'Müştərilər', en: 'Customers', icon: Building2 },
   { href: '/portfolio', label: 'Portfel', en: 'Portfolio', icon: PieChart },

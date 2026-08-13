@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { getCase } from '@/services/application-service';
 import { buildOpinionDraft } from '@/domain/opinion/opinion-builder';
+import { UnderwriterReviewWorkspace } from '@/components/review/underwriter-review';
 import { COVENANT_TEMPLATES } from '@/config/policy';
 import {
   Badge,
@@ -60,6 +61,20 @@ export default async function OpinionPage({ params }: { params: { id: string } }
           />
         </div>
       </Panel>
+
+      <UnderwriterReviewWorkspace
+        applicationId={app.id}
+        findings={a.findings}
+        sections={draft.sections.map((s) => ({
+          key: s.key,
+          titleAz: s.titleAz,
+          paragraphs: s.paragraphs,
+        }))}
+        generatedRecommendation={draft.recommendation}
+        requestedAmount={app.requestedStructure.amount}
+        positives={draft.positives}
+        negatives={draft.negatives}
+      />
 
       <div className="grid gap-4 xl:grid-cols-2">
         <Panel title="Müsbət tərəflər" subtitle="Key positive factors">
